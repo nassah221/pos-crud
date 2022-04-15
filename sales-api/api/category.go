@@ -48,7 +48,7 @@ func (s *Server) ListCategories(ctx *gin.Context) { //nolint
 	}
 	resp.Category = categories
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data:    resp,
@@ -76,7 +76,7 @@ func (s *Server) GetCategory(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data: dto.Category{
@@ -106,7 +106,7 @@ func (s *Server) CreateCategory(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data: dto.Category{
@@ -154,7 +154,7 @@ func (s *Server) UpdateCategory(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 	})
@@ -185,7 +185,7 @@ func (s *Server) DeleteCategory(ctx *gin.Context) { //nolint
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 	})

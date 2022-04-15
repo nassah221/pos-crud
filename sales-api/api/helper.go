@@ -4,27 +4,36 @@ import (
 	"net/http"
 	db "sales-api/db/sqlc"
 	"sales-api/dto"
+	"sales-api/errors"
 
 	"github.com/gin-gonic/gin"
 )
 
 func errHTTP500(ctx *gin.Context) {
-	ctx.JSON(http.StatusInternalServerError, genericResponse{
+	ctx.JSON(http.StatusInternalServerError, dto.GenericResponse{
 		Success: false,
 		Error:   ErrInternalServer,
 	})
 }
 
 func errHTTP400(ctx *gin.Context, err error) {
-	ctx.JSON(http.StatusBadRequest, genericResponse{
+	ctx.JSON(http.StatusBadRequest, dto.GenericResponse{
 		Success: false,
 		Message: MsgInvalidRequest,
 		Error:   err.Error(),
 	})
 }
 
+func errHTTP400BodyInvalid(ctx *gin.Context, msg string, err []errors.BodyValidationError) {
+	ctx.JSON(http.StatusBadRequest, dto.GenericResponse{
+		Success: false,
+		Message: msg,
+		Error:   err,
+	})
+}
+
 func errHTTP404(ctx *gin.Context) {
-	ctx.JSON(http.StatusNotFound, genericResponse{
+	ctx.JSON(http.StatusNotFound, dto.GenericResponse{
 		Success: false,
 		Message: MsgNotFound,
 	})
@@ -69,7 +78,7 @@ func populateOrderDetails(o []db.GetOrderDetailsRow) dto.OrderDetails {
 				Type:            o[i].Discounttype.String,
 				Result:          o[i].Result.Int32,
 				ExpiredAt:       o[i].ExpiredAt.Time.String(),
-				ExpiredAtFormat: o[i].ExpiredAtFormat.Time.String(),
+				ExpiredAtFormat: o[i].ExpiredAtFormat.String,
 				StringFormat:    o[i].StringFormat.String,
 			}
 		}

@@ -39,7 +39,7 @@ func (s *Server) ListAllOrderDetails(ctx *gin.Context) {
 		allOrderDetails = append(allOrderDetails, od)
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data: dto.ListAllOrderDetails{
@@ -75,7 +75,7 @@ func (s *Server) GetOrderDetails(ctx *gin.Context) {
 	}
 	od := populateOrderDetails(o)
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data: map[string]interface{}{
@@ -145,7 +145,7 @@ func (s *Server) CreateOrder(ctx *gin.Context) {
 		Prodcts:        prods,
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data:    resp,
@@ -172,7 +172,7 @@ func (s *Server) SubtotalOrder(ctx *gin.Context) {
 		"products": prods,
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data:    resp,

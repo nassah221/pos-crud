@@ -37,8 +37,8 @@ CREATE TABLE `discounts` (
   `type` varchar(255) NOT NULL,
   `result` int NOT NULL,
   `expired_at` timestamp NOT NULL,
-  `expired_at_format` date,
-  `string_format` text
+  `expired_at_format` varchar(255) NOT NULL,
+  `string_format` text NOT NULL
 );
 
 CREATE TABLE `payments` (
@@ -89,8 +89,6 @@ CREATE TABLE `order_details` (
 );
 
 ALTER TABLE `sold` ADD FOREIGN KEY (`product_id`) REFERENCES `products` (`id`);
-
-ALTER TABLE `sold` ADD FOREIGN KEY (`product_name`) REFERENCES `products` (`name`);
 
 ALTER TABLE `order_products` ADD FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
 

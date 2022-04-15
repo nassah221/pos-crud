@@ -13,17 +13,19 @@ import (
 
 const createDiscount = `-- name: CreateDiscount :execresult
 INSERT INTO discounts (
-    qty, type, result, expired_at
+    qty, type, result, expired_at, expired_at_format, string_format
 ) VALUES (
-    ?,?,?,?
+    ?,?,?,?,?,?
 )
 `
 
 type CreateDiscountParams struct {
-	Qty       int32     `json:"qty"`
-	Type      string    `json:"type"`
-	Result    int32     `json:"result"`
-	ExpiredAt time.Time `json:"expired_at"`
+	Qty             int32     `json:"qty"`
+	Type            string    `json:"type"`
+	Result          int32     `json:"result"`
+	ExpiredAt       time.Time `json:"expired_at"`
+	ExpiredAtFormat string    `json:"expired_at_format"`
+	StringFormat    string    `json:"string_format"`
 }
 
 func (q *Queries) CreateDiscount(ctx context.Context, arg CreateDiscountParams) (sql.Result, error) {
@@ -32,6 +34,8 @@ func (q *Queries) CreateDiscount(ctx context.Context, arg CreateDiscountParams) 
 		arg.Type,
 		arg.Result,
 		arg.ExpiredAt,
+		arg.ExpiredAtFormat,
+		arg.StringFormat,
 	)
 }
 

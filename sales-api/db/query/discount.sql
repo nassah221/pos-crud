@@ -1,8 +1,8 @@
 -- name: CreateDiscount :execresult
 INSERT INTO discounts (
-    qty, type, result, expired_at
+    qty, type, result, expired_at, expired_at_format, string_format
 ) VALUES (
-    ?,?,?,?
+    ?,?,?,?,?,?
 );
 
 -- name: GetDiscount :one

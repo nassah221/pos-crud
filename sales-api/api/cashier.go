@@ -8,6 +8,7 @@ import (
 	"net/http"
 	db "sales-api/db/sqlc"
 	"sales-api/dto"
+	"sales-api/errors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,42 +24,36 @@ var (
 
 type createCashierRequest struct {
 	Name     string `json:"name" binding:"required"`
-	Password string `json:"passcode" binding:"required,numeric,len=6"`
-}
-
-type genericResponse struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-	Error   string      `json:"error,omitempty"`
+	Passcode string `json:"passcode" binding:"required,numeric,len=6"`
 }
 
 func (s *Server) CreateCashier(ctx *gin.Context) {
 	var req createCashierRequest
-
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		log.Printf("[ERR] %v", err)
-		ctx.JSON(http.StatusBadRequest, genericResponse{
+
+		vErr, msg := errors.FromFieldValidationErrorPOST(err)
+		ctx.JSON(http.StatusBadRequest, dto.GenericResponse{
 			Success: false,
-			Message: MsgInvalidRequest,
-			Error:   err.Error(),
+			Message: msg,
+			Error:   vErr,
 		})
 		return
 	}
 
-	arg := db.CreateCashierParams{Name: req.Name, Password: req.Password}
+	arg := db.CreateCashierParams{Name: req.Name, Password: req.Passcode}
 
 	cashier, err := s.store.CreateCashierWithReturn(context.Background(), arg)
 	if err != nil {
 		log.Printf("[ERR] %v", err)
-		ctx.JSON(http.StatusInternalServerError, genericResponse{
+		ctx.JSON(http.StatusInternalServerError, dto.GenericResponse{
 			Success: false,
 			Error:   ErrInternalServer,
 		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data: dto.Cashier{
@@ -76,7 +71,7 @@ func (s *Server) GetCashier(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindUri(&uri); err != nil {
 		log.Printf("[ERR] %v", err)
-		ctx.JSON(http.StatusBadRequest, genericResponse{
+		ctx.JSON(http.StatusBadRequest, dto.GenericResponse{
 			Success: false,
 			Message: MsgInvalidRequest,
 			Error:   err.Error(),
@@ -96,7 +91,7 @@ func (s *Server) GetCashier(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data: dto.Cashier{
@@ -111,7 +106,7 @@ func (s *Server) ListCashiers(ctx *gin.Context) { //nolint
 
 	if err := ctx.ShouldBindQuery(&query); err != nil {
 		log.Printf("[ERR] %v", err)
-		ctx.JSON(http.StatusBadRequest, genericResponse{
+		ctx.JSON(http.StatusBadRequest, dto.GenericResponse{
 			Success: false,
 			Message: MsgInvalidRequest,
 			Error:   err.Error(),
@@ -126,7 +121,7 @@ func (s *Server) ListCashiers(ctx *gin.Context) { //nolint
 
 	cashiers, err := s.store.ListCashiers(context.Background(), arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, genericResponse{
+		ctx.JSON(http.StatusInternalServerError, dto.GenericResponse{
 			Success: false,
 			Error:   ErrInternalServer,
 		})
@@ -150,7 +145,7 @@ func (s *Server) ListCashiers(ctx *gin.Context) { //nolint
 	}
 	resp.Cashiers = cashiersList
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data:    resp,
@@ -158,8 +153,8 @@ func (s *Server) ListCashiers(ctx *gin.Context) { //nolint
 }
 
 type updateCashierRequest struct {
-	Name     string `json:"name,omitempty"`
-	Password string `json:"passcode,omitempty" binding:"numeric,len=6"`
+	Name     string `json:"name,omitempty" binding:"required"`
+	Passcode string `json:"passcode,omitempty" binding:"numeric,len=6"`
 }
 
 func (s *Server) UpdateCashier(ctx *gin.Context) {
@@ -174,7 +169,8 @@ func (s *Server) UpdateCashier(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		log.Printf("[ERR] %v", err)
-		errHTTP400(ctx, err)
+		vErr, msg := errors.FromFieldValidationErrorPUT(err)
+		errHTTP400BodyInvalid(ctx, msg, vErr)
 		return
 	}
 
@@ -192,18 +188,18 @@ func (s *Server) UpdateCashier(ctx *gin.Context) {
 	if req.Name == "" {
 		req.Name = cashier.Name
 	}
-	if req.Password == "" {
-		req.Password = cashier.Password
+	if req.Passcode == "" {
+		req.Passcode = cashier.Password
 	}
 
-	arg := db.UpdateCashierParams{Name: req.Name, Password: req.Password, ID: uri.ID}
+	arg := db.UpdateCashierParams{Name: req.Name, Password: req.Passcode, ID: uri.ID}
 	if err := s.store.UpdateCashier(context.Background(), arg); err != nil {
 		log.Printf("[ERR] %v", err)
 		errHTTP500(ctx)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 	})
@@ -236,7 +232,7 @@ func (s *Server) DeleteCashier(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 	})

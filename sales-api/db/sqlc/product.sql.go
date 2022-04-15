@@ -91,7 +91,7 @@ type GetProductDetailsRow struct {
 	Type            sql.NullString `json:"type"`
 	ExpiredAt       sql.NullTime   `json:"expired_at"`
 	Result          sql.NullInt32  `json:"result"`
-	ExpiredAtFormat sql.NullTime   `json:"expired_at_format"`
+	ExpiredAtFormat sql.NullString `json:"expired_at_format"`
 	StringFormat    sql.NullString `json:"string_format"`
 	CategoryName    string         `json:"category_name"`
 }
@@ -193,7 +193,7 @@ type ListProductsDetailsByCategoryIDRow struct {
 	Type            sql.NullString `json:"type"`
 	Result          sql.NullInt32  `json:"result"`
 	ExpiredAt       sql.NullTime   `json:"expired_at"`
-	ExpiredAtFormat sql.NullTime   `json:"expired_at_format"`
+	ExpiredAtFormat sql.NullString `json:"expired_at_format"`
 	StringFormat    sql.NullString `json:"string_format"`
 }
 
@@ -267,7 +267,7 @@ type ListProductsDetailsByNameRow struct {
 	Type            sql.NullString `json:"type"`
 	Result          sql.NullInt32  `json:"result"`
 	ExpiredAt       sql.NullTime   `json:"expired_at"`
-	ExpiredAtFormat sql.NullTime   `json:"expired_at_format"`
+	ExpiredAtFormat sql.NullString `json:"expired_at_format"`
 	StringFormat    sql.NullString `json:"string_format"`
 }
 

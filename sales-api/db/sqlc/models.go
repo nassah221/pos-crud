@@ -25,13 +25,13 @@ type Category struct {
 }
 
 type Discount struct {
-	ID              int32          `json:"id"`
-	Qty             int32          `json:"qty"`
-	Type            string         `json:"type"`
-	Result          int32          `json:"result"`
-	ExpiredAt       time.Time      `json:"expired_at"`
-	ExpiredAtFormat sql.NullTime   `json:"expired_at_format"`
-	StringFormat    sql.NullString `json:"string_format"`
+	ID              int32     `json:"id"`
+	Qty             int32     `json:"qty"`
+	Type            string    `json:"type"`
+	Result          int32     `json:"result"`
+	ExpiredAt       time.Time `json:"expired_at"`
+	ExpiredAtFormat string    `json:"expired_at_format"`
+	StringFormat    string    `json:"string_format"`
 }
 
 type Order struct {

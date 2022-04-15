@@ -26,7 +26,7 @@ type GetRevenueRow struct {
 	Logo        sql.NullString `json:"logo"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
-	TotalAmount int32    `json:"total_amount"`
+	TotalAmount float64    `json:"total_amount"`
 }
 
 func (q *Queries) GetRevenue(ctx context.Context) ([]GetRevenueRow, error) {

@@ -54,7 +54,7 @@ func (s *Server) ListPayments(ctx *gin.Context) {
 	}
 	resp.Payment = p
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data:    resp,
@@ -81,7 +81,7 @@ func (s *Server) GetPayment(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data: dto.Payment{
@@ -116,7 +116,7 @@ func (s *Server) CreatePayment(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data: dto.Payment{
@@ -186,7 +186,7 @@ func (s *Server) UpdatePayment(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 	})
@@ -217,7 +217,7 @@ func (s *Server) DeletePayment(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 	})

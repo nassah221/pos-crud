@@ -36,7 +36,7 @@ func (s *Server) GetSold(ctx *gin.Context) {
 		resp.OrderProducts = append(resp.OrderProducts, v)
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data:    resp,

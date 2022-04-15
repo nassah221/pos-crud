@@ -56,6 +56,8 @@ func (q *Queries) CreateDiscountWithReturn(ctx context.Context, arg CreateDiscou
 		arg.Type,
 		arg.Result,
 		arg.ExpiredAt,
+		arg.ExpiredAtFormat,
+		arg.StringFormat,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create discount: %v", err)

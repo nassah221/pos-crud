@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sales-api/constants"
 	db "sales-api/db/sqlc"
 	"sales-api/dto"
 	"sales-api/utils"
@@ -45,6 +46,14 @@ func (s *Server) CreateProduct(ctx *gin.Context) {
 			ExpiredAt: time.Unix(req.Discount.ExpiredAt, 0),
 			Result:    int32(req.Discount.Result),
 		}
+		argDiscount.ExpiredAtFormat = argDiscount.ExpiredAt.Format("02-01-2006")
+
+		if req.Discount.Type == constants.PERCENT {
+			discountedPrice := float64(prod.Price) - (float64(prod.Price) * float64(argDiscount.Result) / 100)
+			argDiscount.StringFormat = fmt.Sprintf("Discount %d%% Rp. %.2f", argDiscount.Result, discountedPrice)
+		} else if req.Discount.Type == constants.BUY_N {
+			argDiscount.StringFormat = fmt.Sprintf("Buy %d only Rp. %d", argDiscount.Qty, argDiscount.Result)
+		}
 
 		discount, err := s.store.CreateDiscountWithReturn(context.Background(), argDiscount)
 		if err != nil {
@@ -64,12 +73,13 @@ func (s *Server) CreateProduct(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data: dto.Product{
 			ID:         int(prod.ID),
 			CategoryID: int(prod.CategoryID),
+			SKU:        prod.Sku,
 			Name:       prod.Name,
 			Image:      prod.ImageUrl,
 			Price:      int(prod.Price),
@@ -147,7 +157,7 @@ func (s *Server) SearchProducts(ctx *gin.Context) {
 					Type:            prods[i].Type.String,
 					Result:          prods[i].Result.Int32,
 					ExpiredAt:       prods[i].ExpiredAt.Time.String(),
-					ExpiredAtFormat: prods[i].ExpiredAtFormat.Time.String(),
+					ExpiredAtFormat: prods[i].ExpiredAtFormat.String,
 					StringFormat:    prods[i].StringFormat.String,
 				}
 			}
@@ -188,7 +198,7 @@ func (s *Server) SearchProducts(ctx *gin.Context) {
 					Type:            prods[i].Type.String,
 					Result:          prods[i].Result.Int32,
 					ExpiredAt:       prods[i].ExpiredAt.Time.String(),
-					ExpiredAtFormat: prods[i].ExpiredAtFormat.Time.String(),
+					ExpiredAtFormat: prods[i].ExpiredAtFormat.String,
 					StringFormat:    prods[i].StringFormat.String,
 				}
 			}
@@ -197,7 +207,7 @@ func (s *Server) SearchProducts(ctx *gin.Context) {
 	}
 
 	resp.Product = products
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data:    resp,
@@ -245,12 +255,12 @@ func (s *Server) GetProduct(ctx *gin.Context) {
 			Type:            prod.Type.String,
 			Result:          prod.Result.Int32,
 			ExpiredAt:       prod.ExpiredAt.Time.String(),
-			ExpiredAtFormat: prod.ExpiredAtFormat.Time.String(),
+			ExpiredAtFormat: prod.ExpiredAtFormat.String,
 			StringFormat:    prod.StringFormat.String,
 		}
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data:    resp,
@@ -322,7 +332,7 @@ func (s *Server) UpdateProduct(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 	})
@@ -353,7 +363,7 @@ func (s *Server) DeleteProduct(ctx *gin.Context) { //nolint
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 	})

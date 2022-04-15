@@ -29,7 +29,7 @@ func (s *Server) GetRevenue(ctx *gin.Context) {
 		totalRevenue += float64(r[i].TotalAmount)
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data: dto.Revenue{

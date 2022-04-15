@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sales-api/dto"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,7 +41,7 @@ func (s *Server) GetPassword(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data: map[string]interface{}{
@@ -78,7 +79,7 @@ func (s *Server) LoginUser(ctx *gin.Context) {
 	}
 
 	if cashier.Password != body.Password {
-		ctx.JSON(http.StatusUnauthorized, genericResponse{
+		ctx.JSON(http.StatusUnauthorized, dto.GenericResponse{
 			Success: false,
 			Message: MsgInvalidPassword,
 		})
@@ -92,7 +93,7 @@ func (s *Server) LoginUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, genericResponse{
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
 		Success: true,
 		Message: "Success",
 		Data: map[string]interface{}{

@@ -112,7 +112,7 @@ type GetOrderDetailsRow struct {
 	Discounttype     sql.NullString `json:"discounttype"`
 	Result           sql.NullInt32  `json:"result"`
 	ExpiredAt        sql.NullTime   `json:"expired_at"`
-	ExpiredAtFormat  sql.NullTime   `json:"expired_at_format"`
+	ExpiredAtFormat  sql.NullString `json:"expired_at_format"`
 	StringFormat     sql.NullString `json:"string_format"`
 }
 
@@ -212,7 +212,7 @@ type ListAllOrderDetailsRow struct {
 	Discounttype     sql.NullString `json:"discounttype"`
 	Result           sql.NullInt32  `json:"result"`
 	ExpiredAt        sql.NullTime   `json:"expired_at"`
-	ExpiredAtFormat  sql.NullTime   `json:"expired_at_format"`
+	ExpiredAtFormat  sql.NullString `json:"expired_at_format"`
 	StringFormat     sql.NullString `json:"string_format"`
 }
 

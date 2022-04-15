@@ -46,7 +46,7 @@ func (s *Server) setupRoutes() {
 	r.POST("/cashiers", s.CreateCashier)
 	r.POST("/cashiers/:id/login", s.LoginUser)
 	r.POST("/products", s.CreateProduct)
-	r.POST("/category", s.CreateCategory)
+	r.POST("/categories", s.CreateCategory)
 	r.POST("/payments", s.CreatePayment)
 
 	r.PUT("/cashiers/:id", s.UpdateCashier)

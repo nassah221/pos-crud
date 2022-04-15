@@ -3,6 +3,7 @@ package api
 import (
 	"log"
 	"net/http"
+	"sales-api/dto"
 	"sales-api/token"
 	"strings"
 
@@ -21,7 +22,7 @@ func authMiddleware(tm token.Maker) gin.HandlerFunc {
 		if authHeader == "" {
 			log.Println("[ERR] Authorization header is absent")
 
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, genericResponse{
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, dto.GenericResponse{
 				Success: false,
 				Message: "Unauthorized",
 			})
@@ -32,7 +33,7 @@ func authMiddleware(tm token.Maker) gin.HandlerFunc {
 		if len(f) < 2 {
 			log.Println("[ERR] Authorization header format is invalid")
 
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, genericResponse{
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, dto.GenericResponse{
 				Success: false,
 				Message: "Unauthorized",
 			})
@@ -43,7 +44,7 @@ func authMiddleware(tm token.Maker) gin.HandlerFunc {
 		if !strings.EqualFold(authHeaderType, headerType) {
 			log.Printf("[ERR] Unsupported authorization header type %s", authHeaderType)
 
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, genericResponse{
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, dto.GenericResponse{
 				Success: false,
 				Message: "Unauthorized",
 			})
@@ -53,7 +54,7 @@ func authMiddleware(tm token.Maker) gin.HandlerFunc {
 		accessToken := f[1]
 		payload, err := tm.VerifyToken(accessToken)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, genericResponse{
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, dto.GenericResponse{
 				Success: false,
 				Message: "Unauthorized",
 			})
