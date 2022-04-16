@@ -12,9 +12,9 @@ import (
 )
 
 func main() {
-	conf, err := config.LoadConfig(".")
+	conf, err := config.LoadConfig()
 	if err != nil {
-		log.Fatal("cannot fetch config: ", err)
+		log.Fatalf("unable to load config: %v", err)
 	}
 
 	if err = run(&conf); err != nil {

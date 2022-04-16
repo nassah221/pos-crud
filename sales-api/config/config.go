@@ -1,38 +1,43 @@
 package config
 
 import (
+	"os"
 	"sales-api/constants"
 
-	"github.com/spf13/viper"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	DBDriver   string `mapstructure:"DB_DRIVER"`
-	DBHost     string `mapstructure:"MYSQL_HOST"`
-	DBPort     string `mapstructure:"MYSQL_PORT"`
-	DBUser     string `mapstructure:"MYSQL_USER"`
-	DBPassword string `mapstructure:"MYSQL_PASSWORD"`
-	DBName     string `mapstructure:"MYSQL_DBNAME"`
-	BindAddr   string `mapstructure:"BIND_ADDR"`
-	JWTSecret  string `mapstructure:"JWT_SECRET"`
+	DBDriver   string
+	DBHost     string
+	DBPort     string
+	DBUser     string
+	DBPassword string
+	DBName     string
+	BindAddr   string
+	JWTSecret  string
 }
 
-func LoadConfig(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
-	viper.SetConfigName("app")
-	viper.SetConfigType("env")
+func LoadConfig() (Config, error) {
+	config := Config{}
 
-	viper.SetDefault(constants.JWTSecret, "01234567890123456789012345678901")
-	viper.SetDefault(constants.DBDriver, "mysql")
-	viper.SetDefault(constants.BindAddr, ":3030")
-
-	viper.AutomaticEnv()
-
-	err = viper.ReadInConfig()
-	if err != nil {
-		return
+	if err := godotenv.Load(".env"); err != nil {
+		return config, err
 	}
 
-	err = viper.Unmarshal(&config)
-	return
+	config.DBDriver = "mysql"
+	config.BindAddr = ":3030"
+
+	config.DBHost = os.Getenv(constants.DBHost)
+	config.DBPort = os.Getenv(constants.DBPort)
+	config.DBUser = os.Getenv(constants.DBUser)
+	config.DBPassword = os.Getenv(constants.DBPassword)
+	config.DBName = os.Getenv(constants.DBName)
+	if os.Getenv(constants.JWTSecret) == "" {
+		config.JWTSecret = "01234567890123456789012345678901"
+	} else {
+		config.JWTSecret = os.Getenv(constants.JWTSecret)
+	}
+
+	return config, nil
 }
