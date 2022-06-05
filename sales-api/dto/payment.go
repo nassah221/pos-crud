@@ -3,12 +3,12 @@ package dto
 import "time"
 
 type Payment struct {
-	ID        int        `json:"paymentId"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty"`
 	Name      string     `json:"name"`
 	Type      string     `json:"type"`
 	Logo      string     `json:"logo,omitempty"`
-	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
-	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	ID        int        `json:"paymentId"`
 }
 
 type ListPayment struct {

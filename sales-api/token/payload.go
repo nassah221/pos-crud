@@ -11,11 +11,11 @@ var ErrTokenExpired = fmt.Errorf("token has expired")
 var ErrTokenInvalid = fmt.Errorf("token is invalid")
 
 type Payload struct {
-	ID        uuid.UUID `json:"id"`
-	Username  string    `json:"username"`
-	CashierID int32     `json:"cashierID"`
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiredAt time.Time `json:"expired_at"`
+	Username  string    `json:"username"`
+	CashierID int32     `json:"cashierID"`
+	ID        uuid.UUID `json:"id"`
 }
 
 func NewPayload(username string, cashierID int32, duration time.Duration) (*Payload, error) {

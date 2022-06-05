@@ -2,27 +2,22 @@ package api
 
 import (
 	"fmt"
+	"sales-api/config"
 	db "sales-api/db/sqlc"
 	"sales-api/token"
-	"time"
 
 	"github.com/gin-gonic/gin"
-)
-
-// todo: token secret and duration should be read in from the env
-const (
-	tokenSecret   = "01234567890123456789012345678901"
-	tokenDuration = time.Hour * 10
 )
 
 type Server struct {
 	store      *db.Store
 	tokenMaker token.Maker
 	router     *gin.Engine
+	config     config.Config
 }
 
-func NewServer(store *db.Store) (*Server, error) {
-	tm, err := token.NewJWTMaker(tokenSecret)
+func NewServer(store *db.Store, conf config.Config) (*Server, error) {
+	tm, err := token.NewJWTMaker(conf.JWTSecret)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create token maker: %v", err)
 	}
@@ -30,6 +25,7 @@ func NewServer(store *db.Store) (*Server, error) {
 	s := &Server{
 		store:      store,
 		tokenMaker: tm,
+		config:     conf,
 	}
 	s.setupRoutes()
 
@@ -45,6 +41,7 @@ func (s *Server) setupRoutes() {
 
 	r.POST("/cashiers", s.CreateCashier)
 	r.POST("/cashiers/:id/login", s.LoginUser)
+	r.POST("/cashiers/:id/logout", s.LogoutUser)
 	r.POST("/products", s.CreateProduct)
 	r.POST("/categories", s.CreateCategory)
 	r.POST("/payments", s.CreatePayment)

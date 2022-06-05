@@ -6,19 +6,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sales-api/constants"
 	"sales-api/dto"
+	"sales-api/errors"
 
 	"github.com/gin-gonic/gin"
 )
 
-var MsgInvalidPassword = fmt.Sprintf("Incorrect Password")
-
-type loginUserRequestURI struct {
-	ID int `uri:"id" binding:"required,min=1"`
-}
-type loginUserRequestBody struct {
-	Password string `json:"passcode" binding:"required,numeric,len=6"`
-}
+var MsgInvalidPassword = fmt.Sprintf("Passcode Not Match")
 
 func (s *Server) GetPassword(ctx *gin.Context) {
 	var uri PathIDParam
@@ -33,7 +28,7 @@ func (s *Server) GetPassword(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("[ERR] %v", err)
 		if err == sql.ErrNoRows {
-			errHTTP404(ctx)
+			errHTTP404(ctx, constants.Cashier)
 			return
 		}
 
@@ -50,6 +45,10 @@ func (s *Server) GetPassword(ctx *gin.Context) {
 	})
 }
 
+type loginUserRequestBody struct {
+	Password string `json:"passcode" binding:"required,numeric,len=6"`
+}
+
 func (s *Server) LoginUser(ctx *gin.Context) {
 	var uri PathIDParam
 	var body loginUserRequestBody
@@ -62,7 +61,8 @@ func (s *Server) LoginUser(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		log.Printf("[ERR] %v", err)
-		errHTTP400(ctx, err)
+		vErr, msg := errors.FromFieldValidationErrorPOST(err)
+		errHTTP400BodyInvalid(ctx, msg, vErr)
 		return
 	}
 
@@ -70,7 +70,7 @@ func (s *Server) LoginUser(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("[ERR] %v", err)
 		if err == sql.ErrNoRows {
-			errHTTP404(ctx)
+			errHTTP404(ctx, constants.Cashier)
 			return
 		}
 
@@ -86,7 +86,7 @@ func (s *Server) LoginUser(ctx *gin.Context) {
 		return
 	}
 
-	jwt, err := s.tokenMaker.CreateToken(cashier.Name, uri.ID, tokenDuration)
+	jwt, err := s.tokenMaker.CreateToken(cashier.Name, uri.ID, s.config.JWTDuration)
 	if err != nil {
 		log.Printf("[ERR] %v", err)
 		errHTTP500(ctx)
@@ -99,5 +99,48 @@ func (s *Server) LoginUser(ctx *gin.Context) {
 		Data: map[string]interface{}{
 			"token": jwt,
 		},
+	})
+}
+
+func (s *Server) LogoutUser(ctx *gin.Context) {
+	var uri PathIDParam
+	var body loginUserRequestBody
+
+	if err := ctx.ShouldBindUri(&uri); err != nil {
+		log.Printf("[ERR] %v", err)
+		errHTTP400(ctx, err)
+		return
+	}
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		log.Printf("[ERR] %v", err)
+		vErr, msg := errors.FromFieldValidationErrorPOST(err)
+		errHTTP400BodyInvalid(ctx, msg, vErr)
+		return
+	}
+
+	cashier, err := s.store.GetCashier(context.Background(), uri.ID)
+	if err != nil {
+		log.Printf("[ERR] %v", err)
+		if err == sql.ErrNoRows {
+			errHTTP404(ctx, constants.Cashier)
+			return
+		}
+
+		errHTTP500(ctx)
+		return
+	}
+
+	if cashier.Password != body.Password {
+		ctx.JSON(http.StatusUnauthorized, dto.GenericResponse{
+			Success: false,
+			Message: MsgInvalidPassword,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.GenericResponse{
+		Success: true,
+		Message: "Success",
 	})
 }

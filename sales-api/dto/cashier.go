@@ -3,11 +3,11 @@ package dto
 import "time"
 
 type Cashier struct {
-	ID        int        `json:"cashierId"`
-	Name      string     `json:"name"`
-	Passcode  string     `json:"passcode,omitempty"`
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 	CreatedAt *time.Time `json:"createdAt,omitempty"`
+	Name      string     `json:"name"`
+	Passcode  string     `json:"passcode,omitempty"`
+	ID        int        `json:"cashierId"`
 }
 
 type ListCashiers struct {

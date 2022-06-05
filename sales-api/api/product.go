@@ -9,6 +9,7 @@ import (
 	"sales-api/constants"
 	db "sales-api/db/sqlc"
 	"sales-api/dto"
+	"sales-api/errors"
 	"sales-api/utils"
 	"time"
 
@@ -19,7 +20,8 @@ func (s *Server) CreateProduct(ctx *gin.Context) {
 	var req dto.ProductCreateRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		log.Printf("[ERR] %v", err)
-		errHTTP400(ctx, err)
+		vErr, msg := errors.FromFieldValidationErrorPOST(err)
+		errHTTP400BodyInvalid(ctx, msg, vErr)
 		return
 	}
 
@@ -228,7 +230,7 @@ func (s *Server) GetProduct(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("[ERR] %v", err)
 		if err == sql.ErrNoRows {
-			errHTTP400(ctx, err)
+			errHTTP404(ctx, constants.Product)
 			return
 		}
 
@@ -287,7 +289,8 @@ func (s *Server) UpdateProduct(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		log.Printf("[ERR] %v", err)
-		errHTTP400(ctx, err)
+		vErr, msg := errors.FromFieldValidationErrorPUT(err)
+		errHTTP400BodyInvalid(ctx, msg, vErr)
 		return
 	}
 
@@ -295,7 +298,7 @@ func (s *Server) UpdateProduct(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("[ERR] %v", err)
 		if err == sql.ErrNoRows {
-			errHTTP404(ctx)
+			errHTTP404(ctx, constants.Product)
 			return
 		}
 

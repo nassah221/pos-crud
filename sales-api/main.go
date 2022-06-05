@@ -17,19 +17,21 @@ func main() {
 		log.Fatalf("unable to load config: %v", err)
 	}
 
-	if err = run(&conf); err != nil {
+	if err = run(conf); err != nil {
 		log.Fatalf("an error occurred: %v", err)
 	}
 }
 
-func run(conf *config.Config) error {
+func run(conf config.Config) error {
 	conn, err := sql.Open(conf.DBDriver,
 		fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 			conf.DBUser,
 			conf.DBPassword,
 			conf.DBHost,
 			conf.DBPort,
-			conf.DBName))
+			conf.DBName,
+		),
+	)
 	if err != nil {
 		return fmt.Errorf("unable to connect to db: %v", err)
 	}
@@ -40,7 +42,7 @@ func run(conf *config.Config) error {
 	}
 
 	store := db.NewStore(conn)
-	server, err := api.NewServer(store)
+	server, err := api.NewServer(store, conf)
 	if err != nil {
 		return fmt.Errorf("unable to create api server: %v", err)
 	}

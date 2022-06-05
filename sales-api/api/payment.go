@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"sales-api/constants"
 	db "sales-api/db/sqlc"
 	"sales-api/dto"
+	"sales-api/errors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -73,7 +75,7 @@ func (s *Server) GetPayment(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("[ERR] %v", err)
 		if err == sql.ErrNoRows {
-			errHTTP404(ctx)
+			errHTTP404(ctx, constants.Payment)
 			return
 		}
 
@@ -104,7 +106,8 @@ func (s *Server) CreatePayment(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		log.Printf("[ERR] %v", err)
-		errHTTP400(ctx, err)
+		vErr, msg := errors.FromFieldValidationErrorPOST(err)
+		errHTTP400BodyInvalid(ctx, msg, vErr)
 		return
 	}
 
@@ -147,7 +150,8 @@ func (s *Server) UpdatePayment(ctx *gin.Context) {
 	}
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		log.Printf("[ERR] %v", err)
-		errHTTP400(ctx, err)
+		vErr, msg := errors.FromFieldValidationErrorPUT(err)
+		errHTTP400BodyInvalid(ctx, msg, vErr)
 		return
 	}
 
@@ -155,7 +159,7 @@ func (s *Server) UpdatePayment(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("[ERR] %v", err)
 		if err == sql.ErrNoRows {
-			errHTTP404(ctx)
+			errHTTP404(ctx, constants.Payment)
 			return
 		}
 
@@ -203,7 +207,7 @@ func (s *Server) DeletePayment(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("[ERR] %v", err)
 		if err == sql.ErrNoRows {
-			errHTTP404(ctx)
+			errHTTP404(ctx, constants.Payment)
 			return
 		}
 

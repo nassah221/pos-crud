@@ -10,22 +10,21 @@ import (
 
 const (
 	validationErrTypePOST = "any.required"
-	validationErrTypePUT  = "object.missing"
 )
 
 type BodyValidationError struct {
-	Message string             `json:"message"`
-	Path    []string           `json:"path"`
-	Type    string             `json:"type"`
 	Ctx     ValidationErrorCtx `json:"context"`
+	Message string             `json:"message"`
+	Type    string             `json:"type"`
+	Path    []string           `json:"path"`
 }
 
 type ValidationErrorCtx struct {
-	Label           string   `json:"label"`
-	Key             string   `json:"key,omitempty"`
-	Peers           []string `json:"peers,omitempty"`
-	PeersWithLabels []string `json:"peersWithLabels,omitempty"`
-	Value           struct{} `json:"value,omitempty"`
+	Value           *struct{} `json:"value,omitempty"`
+	Label           string    `json:"label"`
+	Key             string    `json:"key,omitempty"`
+	Peers           []string  `json:"peers,omitempty"`
+	PeersWithLabels []string  `json:"peersWithLabels,omitempty"`
 }
 
 func FromFieldValidationErrorPOST(err error) ([]BodyValidationError, string) {
@@ -69,6 +68,7 @@ func FromFieldValidationErrorPUT(err error) ([]BodyValidationError, string) {
 			Label:           "value",
 			Peers:           missingVals,
 			PeersWithLabels: missingVals,
+			Value:           &struct{}{},
 		},
 	})
 

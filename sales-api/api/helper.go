@@ -12,14 +12,14 @@ import (
 func errHTTP500(ctx *gin.Context) {
 	ctx.JSON(http.StatusInternalServerError, dto.GenericResponse{
 		Success: false,
-		Error:   ErrInternalServer,
+		Error:   errors.ErrInternalServer,
 	})
 }
 
 func errHTTP400(ctx *gin.Context, err error) {
 	ctx.JSON(http.StatusBadRequest, dto.GenericResponse{
 		Success: false,
-		Message: MsgInvalidRequest,
+		Message: errors.ErrInvalidRequest,
 		Error:   err.Error(),
 	})
 }
@@ -32,10 +32,10 @@ func errHTTP400BodyInvalid(ctx *gin.Context, msg string, err []errors.BodyValida
 	})
 }
 
-func errHTTP404(ctx *gin.Context) {
+func errHTTP404(ctx *gin.Context, resource string) {
 	ctx.JSON(http.StatusNotFound, dto.GenericResponse{
 		Success: false,
-		Message: MsgNotFound,
+		Message: resource + " " + errors.ErrNotFound,
 	})
 }
 

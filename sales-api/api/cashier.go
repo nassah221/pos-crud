@@ -3,23 +3,14 @@ package api
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
+	"sales-api/constants"
 	db "sales-api/db/sqlc"
 	"sales-api/dto"
 	"sales-api/errors"
 
 	"github.com/gin-gonic/gin"
-)
-
-var (
-	MsgNotFound       = fmt.Sprintf("Resource Not Found")
-	MsgInvalidRequest = fmt.Sprintf("Unable to Validate Request")
-)
-
-var (
-	ErrInternalServer = fmt.Sprintln("Something went wrong")
 )
 
 type createCashierRequest struct {
@@ -33,11 +24,7 @@ func (s *Server) CreateCashier(ctx *gin.Context) {
 		log.Printf("[ERR] %v", err)
 
 		vErr, msg := errors.FromFieldValidationErrorPOST(err)
-		ctx.JSON(http.StatusBadRequest, dto.GenericResponse{
-			Success: false,
-			Message: msg,
-			Error:   vErr,
-		})
+		errHTTP400BodyInvalid(ctx, msg, vErr)
 		return
 	}
 
@@ -46,10 +33,7 @@ func (s *Server) CreateCashier(ctx *gin.Context) {
 	cashier, err := s.store.CreateCashierWithReturn(context.Background(), arg)
 	if err != nil {
 		log.Printf("[ERR] %v", err)
-		ctx.JSON(http.StatusInternalServerError, dto.GenericResponse{
-			Success: false,
-			Error:   ErrInternalServer,
-		})
+		errHTTP500(ctx)
 		return
 	}
 
@@ -71,11 +55,7 @@ func (s *Server) GetCashier(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindUri(&uri); err != nil {
 		log.Printf("[ERR] %v", err)
-		ctx.JSON(http.StatusBadRequest, dto.GenericResponse{
-			Success: false,
-			Message: MsgInvalidRequest,
-			Error:   err.Error(),
-		})
+		errHTTP400(ctx, err)
 		return
 	}
 
@@ -83,7 +63,7 @@ func (s *Server) GetCashier(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("[ERR] %v", err)
 		if err == sql.ErrNoRows {
-			errHTTP404(ctx)
+			errHTTP404(ctx, constants.Cashier)
 			return
 		}
 
@@ -106,11 +86,7 @@ func (s *Server) ListCashiers(ctx *gin.Context) { //nolint
 
 	if err := ctx.ShouldBindQuery(&query); err != nil {
 		log.Printf("[ERR] %v", err)
-		ctx.JSON(http.StatusBadRequest, dto.GenericResponse{
-			Success: false,
-			Message: MsgInvalidRequest,
-			Error:   err.Error(),
-		})
+		errHTTP400(ctx, err)
 		return
 	}
 
@@ -121,10 +97,7 @@ func (s *Server) ListCashiers(ctx *gin.Context) { //nolint
 
 	cashiers, err := s.store.ListCashiers(context.Background(), arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, dto.GenericResponse{
-			Success: false,
-			Error:   ErrInternalServer,
-		})
+		errHTTP500(ctx)
 		return
 	}
 
@@ -153,8 +126,8 @@ func (s *Server) ListCashiers(ctx *gin.Context) { //nolint
 }
 
 type updateCashierRequest struct {
-	Name     string `json:"name,omitempty" binding:"required"`
-	Passcode string `json:"passcode,omitempty" binding:"numeric,len=6"`
+	Name     string `json:"name" binding:"required"`
+	Passcode string `json:"passcode" binding:"omitempty,numeric,len=6"`
 }
 
 func (s *Server) UpdateCashier(ctx *gin.Context) {
@@ -171,6 +144,7 @@ func (s *Server) UpdateCashier(ctx *gin.Context) {
 		log.Printf("[ERR] %v", err)
 		vErr, msg := errors.FromFieldValidationErrorPUT(err)
 		errHTTP400BodyInvalid(ctx, msg, vErr)
+		// errHTTP400(ctx, err)
 		return
 	}
 
@@ -178,7 +152,7 @@ func (s *Server) UpdateCashier(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("[ERR] %v", err)
 		if err == sql.ErrNoRows {
-			errHTTP404(ctx)
+			errHTTP404(ctx, constants.Cashier)
 			return
 		}
 		errHTTP500(ctx)
@@ -218,7 +192,7 @@ func (s *Server) DeleteCashier(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("[ERR] %v", err)
 		if err == sql.ErrNoRows {
-			errHTTP404(ctx)
+			errHTTP404(ctx, constants.Cashier)
 			return
 		}
 

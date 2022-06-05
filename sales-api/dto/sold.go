@@ -1,10 +1,10 @@
 package dto
 
 type Sold struct {
-	ProductID   int32  `json:"productId"`
 	ProductName string `json:"productName"`
-	TotalQty    int32  `json:"totalQty"`
 	TotalAmount int64  `json:"totalAmount"`
+	ProductID   int32  `json:"productId"`
+	TotalQty    int32  `json:"totalQty"`
 }
 
 type SoldResponse struct {

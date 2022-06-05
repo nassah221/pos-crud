@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sales-api/constants"
 	db "sales-api/db/sqlc"
 	"sales-api/dto"
+	"sales-api/errors"
 	"sales-api/token"
 	"sales-api/utils"
 	"time"
@@ -70,7 +72,7 @@ func (s *Server) GetOrderDetails(ctx *gin.Context) {
 	}
 	if len(o) == 0 {
 		log.Printf("[INFO] order id %d not found ", uri.ID)
-		errHTTP404(ctx)
+		errHTTP404(ctx, constants.Order)
 		return
 	}
 	od := populateOrderDetails(o)
@@ -89,7 +91,8 @@ func (s *Server) CreateOrder(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		log.Printf("[ERR] %v", err)
-		errHTTP400(ctx, err)
+		vErr, msg := errors.FromFieldValidationErrorPOST(err)
+		errHTTP400BodyInvalid(ctx, msg, vErr)
 		return
 	}
 
@@ -157,7 +160,22 @@ func (s *Server) SubtotalOrder(ctx *gin.Context) {
 
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		log.Printf("[ERR] %v", err)
-		errHTTP400(ctx, err)
+		// errHTTP400(ctx, err)
+		ctx.JSON(http.StatusBadRequest, dto.GenericResponse{
+			Success: false,
+			Message: "body ValidationError: \"value\" must be an array",
+			Error: []map[string]interface{}{
+				{
+					"message": "\"value\" must be an array",
+					"path":    []string{},
+					"type":    "array.base",
+					"context": map[string]interface{}{
+						"label": "value",
+						"value": struct{}{},
+					},
+				},
+			},
+		})
 		return
 	}
 
